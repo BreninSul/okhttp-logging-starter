@@ -86,9 +86,9 @@ val repoName = "okhttp-logging-starter"
 centralPortal {
     pom {
         packaging = "jar"
-        name.set("BreninSul OkHTTP ionterceptor with Spring Boot starter")
+        name.set("BreninSul OkHTTP interceptor with Spring Boot starter")
         url.set("https://github.com/BreninSul/$repoName")
-        description.set("BreninSul OkHTTP ionterceptor with Spring Boot starter")
+        description.set("BreninSul OkHTTP interceptor with Spring Boot starter")
         licenses {
             license {
                 name.set("MIT License")
