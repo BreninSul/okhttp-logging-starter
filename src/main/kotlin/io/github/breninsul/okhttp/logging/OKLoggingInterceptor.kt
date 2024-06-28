@@ -76,7 +76,7 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
      *
      * @property headerFormat The format string for the header.
      */
-    protected open val headerFormat: String = "===========================CLIENT OKHttp %type% begin==========================="
+    protected open val headerFormat: String = "\n===========================CLIENT OKHttp %type% begin==========================="
 
     /**
      * The `footerFormat` property represents the format string used to
