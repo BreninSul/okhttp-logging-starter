@@ -32,6 +32,7 @@ import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
 import org.springframework.core.Ordered
+import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.logging.Level
 import java.util.logging.Logger
@@ -123,7 +124,11 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
             val rqId = getIdString()
             val request = chain.request()
             logRequest(rqId, request, startTime)
-            logResponse(rqId, chain.proceed(request), request, startTime)
+            val technicalHeadersBackup=request.getTechnicalHeaders()
+            //Have to remove technical headers before request
+            val response = chain.proceed(request.removeTechnicalHeaders())
+            //And set them back
+            logResponse(rqId, response, request.setTechnicalHeaders(technicalHeadersBackup), startTime)
         } catch (e: Throwable) {
             logger.log(Level.SEVERE, "Exception in OkHttp logging interceptor", e)
             throw e
@@ -150,15 +155,21 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
             return response
         }
         val contentType = response.body?.contentType()
-        val contentLength = response.body?.contentLength() ?: 0
+        val contentLength = response.body?.contentLength() ?: 0L
+        val emptyBody = ((contentLength == 0L) || response.body == null)
+        val haveToLogBody = request.logResponseBody() ?:properties.response.bodyIncluded
         val tooBigBody = contentLength > properties.maxBodySize
-        val content = if (tooBigBody) constructTooBigMsg(contentLength) else response.body?.string()
-        val logBody = constructRsBody(rqId, response, request, time, content)
+        val body = if (tooBigBody) constructTooBigMsg(contentLength)
+        else if (!haveToLogBody) ""
+        else if (emptyBody) ""
+        else response.body?.string()?:""
+
+        val logBody = constructRsBody(rqId, response, request, time,body)
         logger.log(loggingLevel, logBody)
-        return if (tooBigBody){
+        return if (tooBigBody||!haveToLogBody||emptyBody){
             response
         } else{
-            response.newBuilder().body((content ?: "").toResponseBody(contentType)).build()
+            response.newBuilder().body((body).toResponseBody(contentType)).build()
         }
     }
 
@@ -180,10 +191,10 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
         val message = listOf(
             headerFormat.replace("%type%", Type.Request.name),
             getIdString(rqId, Type.Request),
-            getUriString("${request.method} ${request.url}", Type.Request),
-            getTookString(time, Type.Request),
-            getHeadersString(request.headers, Type.Request),
-            getBodyString(body, Type.Request),
+            getUriString(request.logResponseUri(),"${request.method} ${request.url}", Type.Request),
+            getTookString(request.logRequestTookTime(),time, Type.Request),
+            getHeadersString(request.logRequestHeaders(),request.headers, Type.Request),
+            getBodyString(request.logRequestBody(),body, Type.Request),
             footerFormat.replace("%type%", Type.Request.name),
         ).filter { !it.isNullOrBlank() }
             .joinToString("\n")
@@ -210,10 +221,10 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
         val message = listOf(
             headerFormat.replace("%type%", Type.Response.name),
             getIdString(rqId, Type.Response),
-            getUriString("${response.code} ${request.method} ${request.url}", Type.Response),
-            getTookString(time, Type.Response),
-            getHeadersString(response.headers, Type.Response),
-            getBodyString(content, Type.Response),
+            getUriString(request.logResponseUri(),"${response.code} ${request.method} ${request.url}", Type.Response),
+            getTookString(request.logResponseTookTime(),time, Type.Response),
+            getHeadersString(request.logResponseHeaders(),response.headers, Type.Response),
+            getBodyString(request.logResponseBody(),content, Type.Response),
             footerFormat.replace("%type%", Type.Response.name),
         ).filter { !it.isNullOrBlank() }
             .joinToString("\n")
@@ -235,28 +246,33 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
     }
 
     /**
-     * Returns a formatted URI string for the given URI and type of log
-     * message.
+     * Retrieves the URI string for logging purposes.
      *
-     * @param uri The URI to be included in the log message.
+     * This method checks if the URI should be included in the log message based on the value of logEnabledForRequest.
+     * If logEnabledForRequest is null, it uses the value of uriIncluded property from the Type enum.
+     * If logEnabledForRequest is false or uriIncluded is false, it returns null.
+     * Otherwise, it formats a line with name "URI" and value uri using the formatLine method.
+     *
+     * @param logEnabledForRequest Whether logging is enabled for the request. If null, the value from the Type enum will be used.
+     * @param uri The URI string to be included in the log message.
      * @param type The type of the log message (Request or Response).
-     * @return The formatted URI string if uriIncluded is true for the given
-     *     type, otherwise null.
+     * @return The formatted URI string if it is included in logging, otherwise null.
      */
-    protected open fun getUriString(uri: String, type: Type): String? {
-        return if (type.properties().uriIncluded) formatLine("URI", uri)
+    protected open fun getUriString(logEnabledForRequest:Boolean?,uri: String, type: Type): String? {
+        return if (logEnabledForRequest?:type.properties().uriIncluded) formatLine("URI", uri)
         else null
     }
 
     /**
      * Retrieves the result of the "Took" operation as a formatted string.
      *
+     * @param logEnabledForRequest Whether logging is enabled for the request. If null, the value from the Type enum will be used.
      * @param startTime The start time of the operation.
      * @param type The type of the log message.
      * @return The formatted "Took" string if it is included in logging,
      *     otherwise null.
      */
-    protected open fun getTookString(startTime: Long, type: Type): String? {
+    protected open fun getTookString(logEnabledForRequest:Boolean?,startTime: Long, type: Type): String? {
         return if (type.properties().tookTimeIncluded) formatLine("Took", "${System.currentTimeMillis() - startTime} ms")
         else null
     }
@@ -265,12 +281,13 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
      * Retrieves the formatted headers string based on the given Headers object
      * and type.
      *
+     * @param logEnabledForRequest Whether logging is enabled for the request. If null, the value from the Type enum will be used.
      * @param headers The Headers object containing the headers information.
      * @param type The Type of the log message (Request or Response).
      * @return The formatted headers string if headersIncluded is true for the
      *     given type, otherwise null.
      */
-    protected open fun getHeadersString(headers: Headers, type: Type): String? {
+    protected open fun getHeadersString(logEnabledForRequest:Boolean?,headers: Headers, type: Type): String? {
         return if (type.properties().bodyIncluded) formatLine("Headers", getHeaders(headers))
         else null
     }
@@ -278,12 +295,13 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
     /**
      * Retrieves the body string based on the given body and type.
      *
+     * @param logEnabledForRequest Whether logging is enabled for the request. If null, the value from the Type enum will be used.
      * @param body The body string to be included in the log message.
      * @param type The type of the log (Request or Response).
      * @return The formatted body string if bodyIncluded is true for the given
      *     type, otherwise null.
      */
-    protected open fun getBodyString(body: String?, type: Type): String? {
+    protected open fun getBodyString(logEnabledForRequest:Boolean?,body: String?, type: Type): String? {
         return if (type.properties().bodyIncluded) formatLine("Body", body)
         else null
     }
@@ -347,10 +365,15 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
 
         val contentLength = request.body?.contentLength() ?: 0L
         val emptyBody = ((contentLength == 0L) || request.body == null)
-        if (!emptyBody) {
+        val haveToLogBody = request.logRequestBody() ?:properties.request.bodyIncluded
+        if (!emptyBody && haveToLogBody) {
             request.body!!.writeTo(requestBuffer)
         }
-        val body = if (contentLength > properties.maxBodySize) constructTooBigMsg(contentLength) else requestBuffer.readUtf8()
+        val body = if (contentLength > properties.maxBodySize) constructTooBigMsg(contentLength)
+            else if (!haveToLogBody) ""
+            else if (emptyBody) ""
+            else requestBuffer.readUtf8()
+
         val logString = constructRqBody(rqId, request, startTime, body)
         logger.log(loggingLevel, logString)
     }

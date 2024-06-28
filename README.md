@@ -29,6 +29,7 @@ Client is not registered in this starter. Interceptor should be manually added b
 | `okhttp.logging-interceptor.response.headers-included`   | Boolean          | Is headers included to log message (response)    |
 | `okhttp.logging-interceptor.response.body-included`      | Boolean          | Is body included to log message (response)       |
 
+You can additionally configure logging for each request by passing headers from `io.github.breninsul.okhttp.logging.OkHttpConfigHeaders` to request
 
 
 add the following dependency:
