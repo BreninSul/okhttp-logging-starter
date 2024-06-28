@@ -88,7 +88,7 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
      * property is "===========================CLIENT OKHttp %type%
      * end===========================".
      */
-    protected open val footerFormat: String = "\n===========================CLIENT OKHttp %type% end==========================="
+    protected open val footerFormat: String = "===========================CLIENT OKHttp %type% end==========================="
 
     /**
      * Represents the format string for new lines in the log output.
