@@ -288,7 +288,7 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
      *     given type, otherwise null.
      */
     protected open fun getHeadersString(logEnabledForRequest:Boolean?,headers: Headers, type: Type): String? {
-        return if (type.properties().bodyIncluded) formatLine("Headers", getHeaders(headers))
+        return if (type.properties().bodyIncluded) formatLine("Headers", headers.getHeadersString())
         else null
     }
 
@@ -329,22 +329,6 @@ open class OKLoggingInterceptor(protected open val properties: OkHttpLoggerPrope
             Type.Response -> properties.response
         }
     }
-
-    /**
-     * Retrieves the formatted headers string for logging purposes.
-     *
-     * This method takes an instance of the `Headers` class representing the
-     * headers of an HTTP request or response. It converts the headers into
-     * a multimap, then maps each key-value pair to a string in the format
-     * "key:value". The resulting strings are then joined with a semicolon
-     * separator to create the final headers string.
-     *
-     * @param headers The instance of the `Headers` class representing the
-     *     headers of an HTTP request or response.
-     * @return The formatted headers string.
-     */
-    protected open fun getHeaders(headers: Headers) =
-        (headers.toMultimap().map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(";"))
 
     /**
      * Logs the request.

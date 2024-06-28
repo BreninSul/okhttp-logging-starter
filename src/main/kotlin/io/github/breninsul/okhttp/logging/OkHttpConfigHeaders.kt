@@ -1,6 +1,7 @@
 package io.github.breninsul.okhttp.logging
 
 import io.github.breninsul.okhttp.logging.OkHttpConfigHeaders.TECHNICAL_HEADERS
+import okhttp3.Headers
 import okhttp3.Request
 
 /**
@@ -20,6 +21,9 @@ object OkHttpConfigHeaders {
     //You can add your headers here
     val TECHNICAL_HEADERS = mutableListOf(LOG_REQUEST_URI, LOG_REQUEST_HEADERS, LOG_REQUEST_BODY, LOG_REQUEST_TOOK_TIME, LOG_RESPONSE_URI, LOG_RESPONSE_HEADERS, LOG_RESPONSE_BODY, LOG_RESPONSE_TOOK_TIME)
 }
+fun Headers.getHeadersString() =
+    (this.toMultimap().filter { h-> !TECHNICAL_HEADERS.any { th->th.contentEquals(h.key) } }.map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(";"))
+
 
 /**
  * Returns a list of technical headers present in the HTTP request.
