@@ -21,9 +21,21 @@ object OkHttpConfigHeaders {
     //You can add your headers here
     val TECHNICAL_HEADERS = mutableListOf(LOG_REQUEST_URI, LOG_REQUEST_HEADERS, LOG_REQUEST_BODY, LOG_REQUEST_TOOK_TIME, LOG_RESPONSE_URI, LOG_RESPONSE_HEADERS, LOG_RESPONSE_BODY, LOG_RESPONSE_TOOK_TIME)
 }
-fun Headers.getHeadersString() =
-    (this.toMultimap().filter { h-> !TECHNICAL_HEADERS.any { th->th.contentEquals(h.key) } }.map { "${it.key}:${it.value.joinToString(",")}" }.joinToString(";"))
 
+/**
+ * Retrieves the formatted headers string based on the given Headers object
+ * and maskingHeaders list.
+ *
+ * @param maskingHeaders A list of headers that should be masked.
+ * @return The formatted headers string.
+ */
+fun Headers.getHeadersString(maskingHeaders:List<String>) =
+    (this
+        .toMultimap()
+        .asSequence()
+        .filter { h-> !TECHNICAL_HEADERS.any { th->th.contentEquals(h.key) } }
+        .map { "${it.key}:${if(maskingHeaders.any { m->m.contentEquals(it.key,true) }) "<MASKED>" else it.value.joinToString(",")}" }
+        .joinToString(";"))
 
 /**
  * Returns a list of technical headers present in the HTTP request.

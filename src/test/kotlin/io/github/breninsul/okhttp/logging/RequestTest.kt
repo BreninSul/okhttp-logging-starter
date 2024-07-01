@@ -24,18 +24,34 @@
 
 package io.github.breninsul.okhttp.logging
 
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
+
 
 class RequestTest {
     @org.junit.jupiter.api.Test
-    fun teteRequest(){
-        val client= OkHttpClient.Builder().addInterceptor(OKLoggingInterceptor(OkHttpLoggerProperties())).build()
+    fun testFormRequest(){
+        val config=OkHttpLoggerConfiguration()
+        val client= OkHttpClient.Builder().addInterceptor(config.registerOKLoggingInterceptor(OkHttpLoggerProperties())).build()
+        val mediaType: MediaType = "application/x-www-form-urlencoded".toMediaTypeOrNull()!!
+        val body: RequestBody = RequestBody.create(mediaType, "awadad=sadasdsad&password=some&awadadsa=sadasdsad")
+        val request: Request = Request.Builder()
+            .url("https://test-c.free.beeceptor.com")
+            .method("POST", body)
+            .addHeader("Content-Type", "application/x-www-form-urlencoded")
+            .build()
+        val rs= client.newCall(request).execute()
+    }
+
+    @org.junit.jupiter.api.Test
+    fun testRestRequest(){
+        val config=OkHttpLoggerConfiguration()
+        val client= OkHttpClient.Builder().addInterceptor(config.registerOKLoggingInterceptor(OkHttpLoggerProperties())).build()
         val rq= Request.Builder().url("https://test-c.free.beeceptor.com")
             .header("HeaderFirst","HeaderValueFirst")
             .header("HeaderSecond","HeaderValueSecond")
-            .post("{\"someKey\":\"someval\"}".toRequestBody())
+            .post("{\"password\":\"someval\"}".toRequestBody())
             .build()
         val rs= client.newCall(rq).execute()
     }

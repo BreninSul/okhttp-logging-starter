@@ -41,7 +41,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @property newLineColumnSymbols The number of column symbols for the newline character in log output. Default value is `14`.
  */
 @ConfigurationProperties("okhttp.logging-interceptor")
-open class OkHttpLoggerProperties (
+data class OkHttpLoggerProperties (
     var enabled:Boolean=true,
     var loggingLevel: JavaLoggingLevel=JavaLoggingLevel.INFO,
     var request:LogSettings=LogSettings(tookTimeIncluded = false),
@@ -51,19 +51,34 @@ open class OkHttpLoggerProperties (
     var newLineColumnSymbols:Int=14
 ){
     /**
-     * Represents the settings for logging various aspects of requests and responses.
+     * Represents the log settings for a logging operation.
      *
-     * @param idIncluded Whether to include the ID in the log output. Default value is `true`.
-     * @param uriIncluded Whether to include the URI in the log output. Default value is `true`.
-     * @param tookTimeIncluded Whether to include the time taken for the request/response in the log output. Default value is `true`.
-     * @param headersIncluded Whether to include the headers in the log output. Default value is `true`.
-     * @param bodyIncluded Whether to include the body in the log output. Default value is `true`.
+     * @property idIncluded Whether to include the request ID in the log output. Default value is true.
+     * @property uriIncluded Whether to include the URI in the log output. Default value is true.
+     * @property tookTimeIncluded Whether to include the time taken for the request in the log output. Default value is true.
+     * @property headersIncluded Whether to include the headers in the log output. Default value is true.
+     * @property bodyIncluded Whether to include the body in the log output. Default value is true.
+     * @property mask The mask settings for logging requests and responses.
      */
-    open class LogSettings(
+    data class LogSettings(
         var idIncluded:Boolean =true,
         var uriIncluded:Boolean =true,
         var tookTimeIncluded:Boolean=true,
         var headersIncluded:Boolean =true,
         var bodyIncluded:Boolean =true,
+        var mask:MaskSettings=MaskSettings()
+    )
+    /**
+     * Represents the mask settings for logging requests and responses.
+     *
+     * @property maskHeaders The list of headers to be masked in the log output. Default value is ["Authorization"].
+     * @property maskJsonBodyKeys The list of keys to be masked in the JSON body of the log output. Default value is ["password", "pass", "code", "token", "secret"].
+     * @property maskFormUrlencodedBodyKeys The list of keys to be masked in the form-urlencoded body of the log output. Default value is ["password", "pass", "code", "token", "secret
+     * "].
+     */
+    data class MaskSettings(
+        var maskHeaders: List<String> = listOf("Authorization"),
+        var maskJsonBodyKeys: List<String> = listOf("password", "pass", "code", "token", "secret"),
+        var maskFormUrlencodedBodyKeys: List<String> = listOf("password", "pass", "code", "token", "secret"),
     )
 }

@@ -55,8 +55,32 @@ open class OkHttpLoggerConfiguration {
      * @return The registered OKLoggingInterceptor.
      */
     @Bean
-    open fun registerOKLoggingInterceptor(properties: OkHttpLoggerProperties):OKLoggingInterceptor{
-        return OKLoggingInterceptor(properties)
+    fun registerOKLoggingInterceptor(properties: OkHttpLoggerProperties):OKLoggingInterceptor{
+        val requestMaskers= listOf(
+            okHttpRequestRegexJsonBodyMasking(properties.request.mask),
+            okHttpRequestFormUrlencodedBodyMasking(properties.request.mask)
+        )
+        val responseMaskers= listOf(
+            okHttpResponseRegexJsonBodyMasking(properties.request.mask),
+            okHttpResponseFormUrlencodedBodyMasking(properties.request.mask)
+        )
+        return OKLoggingInterceptor(properties,requestMaskers,responseMaskers)
+    }
+    fun okHttpRequestRegexJsonBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
+        return OkHttpRequestBodyMaskingDelegate(OkHttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
     }
 
+
+    fun okHttpResponseRegexJsonBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
+        return OkHttpResponseBodyMaskingDelegate(OkHttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
+    }
+
+
+    fun okHttpRequestFormUrlencodedBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
+        return OkHttpRequestBodyMaskingDelegate(OkHttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
+    }
+
+    fun okHttpResponseFormUrlencodedBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
+        return OkHttpResponseBodyMaskingDelegate(OkHttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
+    }
 }
