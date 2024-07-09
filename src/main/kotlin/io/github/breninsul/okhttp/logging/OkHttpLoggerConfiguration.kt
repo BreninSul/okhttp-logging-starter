@@ -25,6 +25,9 @@
 
 package io.github.breninsul.okhttp.logging
 
+import io.github.breninsul.logging.HttpLoggerProperties
+import io.github.breninsul.logging.HttpRegexFormUrlencodedBodyMasking
+import io.github.breninsul.logging.HttpRegexJsonBodyMasking
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -66,21 +69,21 @@ open class OkHttpLoggerConfiguration {
         )
         return OKLoggingInterceptor(properties,requestMaskers,responseMaskers)
     }
-    fun okHttpRequestRegexJsonBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
-        return OkHttpRequestBodyMaskingDelegate(OkHttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
+    fun okHttpRequestRegexJsonBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
+        return OkHttpRequestBodyMaskingDelegate(HttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
     }
 
 
-    fun okHttpResponseRegexJsonBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
-        return OkHttpResponseBodyMaskingDelegate(OkHttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
+    fun okHttpResponseRegexJsonBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
+        return OkHttpResponseBodyMaskingDelegate(HttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
     }
 
 
-    fun okHttpRequestFormUrlencodedBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
-        return OkHttpRequestBodyMaskingDelegate(OkHttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
+    fun okHttpRequestFormUrlencodedBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
+        return OkHttpRequestBodyMaskingDelegate(HttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
     }
 
-    fun okHttpResponseFormUrlencodedBodyMasking(properties: OkHttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
-        return OkHttpResponseBodyMaskingDelegate(OkHttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
+    fun okHttpResponseFormUrlencodedBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
+        return OkHttpResponseBodyMaskingDelegate(HttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
     }
 }

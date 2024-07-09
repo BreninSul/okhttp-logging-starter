@@ -24,6 +24,8 @@
 
 package io.github.breninsul.okhttp.logging
 
+import io.github.breninsul.logging.HttpLoggerProperties
+import io.github.breninsul.logging.JavaLoggingLevel
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**
@@ -41,44 +43,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @property newLineColumnSymbols The number of column symbols for the newline character in log output. Default value is `14`.
  */
 @ConfigurationProperties("okhttp.logging-interceptor")
-data class OkHttpLoggerProperties (
-    var enabled:Boolean=true,
-    var loggingLevel: JavaLoggingLevel=JavaLoggingLevel.INFO,
-    var request:LogSettings=LogSettings(tookTimeIncluded = false),
-    var response:LogSettings=LogSettings(tookTimeIncluded = true),
-    var maxBodySize:Int=Int.MAX_VALUE,
-    var order:Int=0,
-    var newLineColumnSymbols:Int=14
-){
-    /**
-     * Represents the log settings for a logging operation.
-     *
-     * @property idIncluded Whether to include the request ID in the log output. Default value is true.
-     * @property uriIncluded Whether to include the URI in the log output. Default value is true.
-     * @property tookTimeIncluded Whether to include the time taken for the request in the log output. Default value is true.
-     * @property headersIncluded Whether to include the headers in the log output. Default value is true.
-     * @property bodyIncluded Whether to include the body in the log output. Default value is true.
-     * @property mask The mask settings for logging requests and responses.
-     */
-    data class LogSettings(
-        var idIncluded:Boolean =true,
-        var uriIncluded:Boolean =true,
-        var tookTimeIncluded:Boolean=true,
-        var headersIncluded:Boolean =true,
-        var bodyIncluded:Boolean =true,
-        var mask:MaskSettings=MaskSettings()
-    )
-    /**
-     * Represents the mask settings for logging requests and responses.
-     *
-     * @property maskHeaders The list of headers to be masked in the log output. Default value is ["Authorization"].
-     * @property maskJsonBodyKeys The list of keys to be masked in the JSON body of the log output. Default value is ["password", "pass", "code", "token", "secret"].
-     * @property maskFormUrlencodedBodyKeys The list of keys to be masked in the form-urlencoded body of the log output. Default value is ["password", "pass", "code", "token", "secret
-     * "].
-     */
-    data class MaskSettings(
-        var maskHeaders: List<String> = listOf("Authorization"),
-        var maskJsonBodyKeys: List<String> = listOf("password", "pass", "code", "token", "secret"),
-        var maskFormUrlencodedBodyKeys: List<String> = listOf("password", "pass", "code", "token", "secret"),
-    )
-}
+open class OkHttpLoggerProperties (
+    enabled:Boolean=true,
+    loggingLevel: JavaLoggingLevel =JavaLoggingLevel.INFO,
+    request:LogSettings=LogSettings(tookTimeIncluded = false),
+    response:LogSettings=LogSettings(tookTimeIncluded = true),
+    maxBodySize:Int=Int.MAX_VALUE,
+    order:Int=0,
+    newLineColumnSymbols:Int=14
+):HttpLoggerProperties(enabled, loggingLevel, request, response, maxBodySize, order, newLineColumnSymbols)
