@@ -42,7 +42,7 @@ val kotlinVersion = "2.0.0"
 val javaVersion = JavaVersion.VERSION_17
 
 group = "io.github.breninsul"
-version = "1.1.3"
+version = "1.1.4"
 
 java {
     sourceCompatibility = javaVersion
@@ -63,7 +63,7 @@ tasks.compileKotlin {
 
 dependencies {
     compileOnly("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-    api("io.github.breninsul:http-logging-commons:1.0.4")
+    api("io.github.breninsul:http-logging-commons:1.0.5")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
