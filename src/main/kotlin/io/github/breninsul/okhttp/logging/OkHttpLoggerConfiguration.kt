@@ -25,7 +25,7 @@
 
 package io.github.breninsul.okhttp.logging
 
-import io.github.breninsul.logging.HttpLoggerProperties
+import io.github.breninsul.logging.HttpMaskSettings
 import io.github.breninsul.logging.HttpRegexFormUrlencodedBodyMasking
 import io.github.breninsul.logging.HttpRegexJsonBodyMasking
 import org.springframework.boot.autoconfigure.AutoConfiguration
@@ -69,21 +69,21 @@ open class OkHttpLoggerConfiguration {
         )
         return OKLoggingInterceptor(properties,requestMaskers,responseMaskers)
     }
-    fun okHttpRequestRegexJsonBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
+    fun okHttpRequestRegexJsonBodyMasking(properties: HttpMaskSettings):OkHttpRequestBodyMasking{
         return OkHttpRequestBodyMaskingDelegate(HttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
     }
 
 
-    fun okHttpResponseRegexJsonBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
+    fun okHttpResponseRegexJsonBodyMasking(properties: HttpMaskSettings):OkHttpResponseBodyMasking{
         return OkHttpResponseBodyMaskingDelegate(HttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
     }
 
 
-    fun okHttpRequestFormUrlencodedBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpRequestBodyMasking{
+    fun okHttpRequestFormUrlencodedBodyMasking(properties: HttpMaskSettings):OkHttpRequestBodyMasking{
         return OkHttpRequestBodyMaskingDelegate(HttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
     }
 
-    fun okHttpResponseFormUrlencodedBodyMasking(properties: HttpLoggerProperties.MaskSettings):OkHttpResponseBodyMasking{
+    fun okHttpResponseFormUrlencodedBodyMasking(properties: HttpMaskSettings):OkHttpResponseBodyMasking{
         return OkHttpResponseBodyMaskingDelegate(HttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
     }
 }

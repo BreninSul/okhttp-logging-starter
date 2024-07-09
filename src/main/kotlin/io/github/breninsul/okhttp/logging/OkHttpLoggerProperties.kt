@@ -24,7 +24,8 @@
 
 package io.github.breninsul.okhttp.logging
 
-import io.github.breninsul.logging.HttpLoggerProperties
+import io.github.breninsul.logging.HttpLogSettings
+import io.github.breninsul.logging.HttpLoggingProperties
 import io.github.breninsul.logging.JavaLoggingLevel
 import org.springframework.boot.context.properties.ConfigurationProperties
 
@@ -43,12 +44,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties
  * @property newLineColumnSymbols The number of column symbols for the newline character in log output. Default value is `14`.
  */
 @ConfigurationProperties("okhttp.logging-interceptor")
-open class OkHttpLoggerProperties (
-    enabled:Boolean=true,
-    loggingLevel: JavaLoggingLevel =JavaLoggingLevel.INFO,
-    request:LogSettings=LogSettings(tookTimeIncluded = false),
-    response:LogSettings=LogSettings(tookTimeIncluded = true),
-    maxBodySize:Int=Int.MAX_VALUE,
-    order:Int=0,
-    newLineColumnSymbols:Int=14
-):HttpLoggerProperties(enabled, loggingLevel, request, response, maxBodySize, order, newLineColumnSymbols)
+open class OkHttpLoggerProperties(
+    enabled: Boolean = true,
+    loggingLevel: JavaLoggingLevel = JavaLoggingLevel.INFO,
+    request: HttpLogSettings = HttpLogSettings(tookTimeIncluded = false),
+    response: HttpLogSettings = HttpLogSettings(tookTimeIncluded = true),
+    maxBodySize: Int = Int.MAX_VALUE,
+    order: Int = 0,
+    newLineColumnSymbols: Int = 14,
+):HttpLoggingProperties(enabled, loggingLevel, request, response, maxBodySize, order, newLineColumnSymbols)
