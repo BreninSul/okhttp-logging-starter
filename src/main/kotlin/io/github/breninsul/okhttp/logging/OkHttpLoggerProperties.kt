@@ -49,7 +49,6 @@ open class OkHttpLoggerProperties(
     loggingLevel: JavaLoggingLevel = JavaLoggingLevel.INFO,
     request: HttpLogSettings = HttpLogSettings(tookTimeIncluded = false),
     response: HttpLogSettings = HttpLogSettings(tookTimeIncluded = true),
-    maxBodySize: Int = Int.MAX_VALUE,
     order: Int = 0,
     newLineColumnSymbols: Int = 14,
-):HttpLoggingProperties(enabled, loggingLevel, request, response, maxBodySize, order, newLineColumnSymbols)
+) : HttpLoggingProperties(enabled, loggingLevel, request, response, order, newLineColumnSymbols)

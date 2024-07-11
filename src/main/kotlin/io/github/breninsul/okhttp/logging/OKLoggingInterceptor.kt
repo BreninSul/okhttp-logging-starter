@@ -48,7 +48,8 @@ open class OKLoggingInterceptor(
     protected open val properties: OkHttpLoggerProperties,
     protected open val requestBodyMaskers: List<OkHttpRequestBodyMasking>,
     protected open val responseBodyMaskers: List<OkHttpResponseBodyMasking>,
-) : Interceptor, Ordered {
+) : Interceptor,
+    Ordered {
     /**
      * This variable represents a logger used for logging messages in the
      * OkHttpLogger class.
@@ -111,34 +112,36 @@ open class OKLoggingInterceptor(
             return response
         }
         val contentType = response.body?.contentType()
-        val cachedBodyString=AtomicReference<String?>(null)
-        val logBody = constructRsBody(rqId, response, request, time){
-            val contentLength = response.body?.contentLength() ?: 0L
-            val emptyBody = ((contentLength == 0L) || response.body == null)
-            val haveToLogBody = request.logResponseBody() ?: properties.response.bodyIncluded
-            val tooBigBody = contentLength > properties.maxBodySize
-            if (tooBigBody) {
-                helper.constructTooBigMsg(contentLength)
-            } else if (!haveToLogBody) {
-                ""
-            } else if (emptyBody) {
-                ""
-            } else {
-                val body=response.body.toBodyString()
-                cachedBodyString.set(body)
-                return@constructRsBody  body
+        val cachedBodyString = AtomicReference<String?>(null)
+        val logBody =
+            constructRsBody(rqId, response, request, time) {
+                val contentLength = response.body?.contentLength() ?: 0L
+                val emptyBody = ((contentLength == 0L) || response.body == null)
+                val haveToLogBody = request.logResponseBody() ?: properties.response.bodyIncluded
+                val tooBigBody = contentLength > properties.response.maxBodySize
+                if (tooBigBody) {
+                    helper.constructTooBigMsg(contentLength)
+                } else if (!haveToLogBody) {
+                    ""
+                } else if (emptyBody) {
+                    ""
+                } else {
+                    val body = response.body.toBodyString()
+                    cachedBodyString.set(body)
+                    return@constructRsBody body
+                }
             }
-
-        }
         logger.log(helper.loggingLevel, logBody)
-        val cachedBody=cachedBodyString.get()
-        return if (cachedBody==null) {
+        val cachedBody = cachedBodyString.get()
+        return if (cachedBody == null) {
             response
         } else {
             response.newBuilder().body((cachedBody).toResponseBody(contentType)).build()
         }
     }
-    protected open fun ResponseBody?.toBodyString()=this?.string() ?: ""
+
+    protected open fun ResponseBody?.toBodyString() = this?.string() ?: ""
+
     /**
      * Constructs the request body log message.
      *
@@ -190,7 +193,7 @@ open class OKLoggingInterceptor(
         val message =
             listOf(
                 helper.getHeaderLine(type),
-                helper.getIdString(rqId,type),
+                helper.getIdString(rqId, type),
                 helper.getUriString(request.logResponseUri(), "${response.code} ${request.method} ${request.url}", type),
                 helper.getTookString(request.logResponseTookTime(), time, type),
                 helper.getHeadersString(request.logResponseHeaders(), response.headers.toMultimap(), type),
@@ -200,7 +203,6 @@ open class OKLoggingInterceptor(
                 .joinToString("\n")
         return message
     }
-
 
     /**
      * Logs the request.
@@ -225,20 +227,20 @@ open class OKLoggingInterceptor(
         if (!emptyBody && haveToLogBody) {
             request.body!!.writeTo(requestBuffer)
         }
-        val logString = constructRqBody(rqId, request, startTime){
-            if (contentLength > properties.maxBodySize) {
-                helper.constructTooBigMsg(contentLength)
-            } else if (!haveToLogBody) {
-                ""
-            } else if (emptyBody) {
-                ""
-            } else {
-                requestBuffer.readUtf8()
+        val logString =
+            constructRqBody(rqId, request, startTime) {
+                if (contentLength > properties.request.maxBodySize) {
+                    helper.constructTooBigMsg(contentLength)
+                } else if (!haveToLogBody) {
+                    ""
+                } else if (emptyBody) {
+                    ""
+                } else {
+                    requestBuffer.readUtf8()
+                }
             }
-        }
         logger.log(helper.loggingLevel, logString)
     }
-
 
     /**
      * Retrieves the order value of the `OKLoggingInterceptor`.

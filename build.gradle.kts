@@ -22,8 +22,6 @@
  * SOFTWARE.
  */
 
-
-
 plugins {
     val kotlinVersion = "2.0.0"
     val springBootVersion = "3.3.1"
@@ -42,7 +40,7 @@ val kotlinVersion = "2.0.0"
 val javaVersion = JavaVersion.VERSION_17
 
 group = "io.github.breninsul"
-version = "1.1.4"
+version = "1.1.5"
 
 java {
     sourceCompatibility = javaVersion
@@ -62,8 +60,8 @@ tasks.compileKotlin {
 }
 
 dependencies {
-    compileOnly("org.springframework.boot:spring-boot-starter:${springBootVersion}")
-    api("io.github.breninsul:http-logging-commons:1.0.5")
+    compileOnly("org.springframework.boot:spring-boot-starter:$springBootVersion")
+    api("io.github.breninsul:http-logging-commons:1.0.6")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -72,17 +70,13 @@ dependencies {
     kapt("org.springframework.boot:spring-boot-configuration-processor")
 }
 
-
 kotlin {
     jvmToolchain(javaVersion.majorVersion.toInt())
 }
 
-
-
 signing {
     useGpgCmd()
 }
-
 
 val repoName = "okhttp-logging-starter"
 centralPortal {
@@ -122,8 +116,6 @@ tasks.getByName<Jar>("jar") {
     enabled = true
     archiveClassifier = ""
 }
-
-
 
 tasks.withType<Test> {
     useJUnitPlatform()
