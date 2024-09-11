@@ -42,12 +42,13 @@ import java.util.logging.Logger
  * metadata.
  *
  * @param properties The configuration properties for the
- *     OkLoggingInterceptor.
+ *    OkLoggingInterceptor.
  */
 open class OKLoggingInterceptor(
     protected open val properties: OkHttpLoggerProperties,
-    protected open val requestBodyMaskers: List<OkHttpRequestBodyMasking>,
-    protected open val responseBodyMaskers: List<OkHttpResponseBodyMasking>,
+    uriMaskers: List<OkHttpUriMasking>,
+    requestBodyMaskers: List<OkHttpRequestBodyMasking>,
+    responseBodyMaskers: List<OkHttpResponseBodyMasking>,
 ) : Interceptor,
     Ordered {
     /**
@@ -55,7 +56,7 @@ open class OKLoggingInterceptor(
      * OkHttpLogger class.
      *
      * @property logger An instance of the Logger class provided by the Java
-     *     Logging API.
+     *    Logging API.
      * @see Logger
      */
     protected open val logger = Logger.getLogger(this.javaClass.name)
@@ -63,12 +64,14 @@ open class OKLoggingInterceptor(
     /**
      * Helper variable for logging HTTP requests and responses.
      *
-     * This variable is an instance of the `HttpLoggingHelper` class, which is responsible for logging requests and responses in the OkHttp library.
-     * It is protected and open, allowing subclasses to override it if necessary.
+     * This variable is an instance of the `HttpLoggingHelper` class, which is
+     * responsible for logging requests and responses in the OkHttp library. It
+     * is protected and open, allowing subclasses to override it if necessary.
      *
-     * @property helper The `HttpLoggingHelper` instance for logging requests and responses.
+     * @property helper The `HttpLoggingHelper` instance for logging requests
+     *    and responses.
      */
-    protected open val helper = HttpLoggingHelper("OkHTTP", properties, requestBodyMaskers, responseBodyMaskers)
+    protected open val helper = HttpLoggingHelper("OkHTTP", properties, uriMaskers, requestBodyMaskers, responseBodyMaskers)
 
     /**
      * Intercepts the OkHttp request chain and logs the request and response.
