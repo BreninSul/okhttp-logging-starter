@@ -24,7 +24,7 @@
 
 package io.github.breninsul.okhttp.logging
 
-import io.github.breninsul.logging.HttpLoggingHelper
+import io.github.breninsul.logging2.HttpLoggingHelper
 import okhttp3.*
 import okhttp3.ResponseBody.Companion.toResponseBody
 import okio.Buffer
@@ -46,9 +46,6 @@ import java.util.logging.Logger
  */
 open class OKLoggingInterceptor(
     protected open val properties: OkHttpLoggerProperties,
-    uriMaskers: List<OkHttpUriMasking>,
-    requestBodyMaskers: List<OkHttpRequestBodyMasking>,
-    responseBodyMaskers: List<OkHttpResponseBodyMasking>,
 ) : Interceptor,
     Ordered {
     /**
@@ -71,7 +68,7 @@ open class OKLoggingInterceptor(
      * @property helper The `HttpLoggingHelper` instance for logging requests
      *    and responses.
      */
-    protected open val helper = HttpLoggingHelper("OkHTTP", properties, uriMaskers, requestBodyMaskers, responseBodyMaskers)
+    protected open val helper = HttpLoggingHelper("OkHTTP", properties)
 
     /**
      * Intercepts the OkHttp request chain and logs the request and response.
@@ -164,11 +161,11 @@ open class OKLoggingInterceptor(
         val message =
             listOf(
                 helper.getHeaderLine(type),
-                helper.getIdString(rqId, type),
-                helper.getUriString(request.logResponseUri(), "${request.method} ${request.url}", type),
+                helper.getIdString(request.logRequestId(),rqId, type),
+                helper.getUriString(request.logRequestMaskQueryParameters(),request.logRequestUri(), "${request.method} ${request.url}", type),
                 helper.getTookString(request.logRequestTookTime(), time, type),
-                helper.getHeadersString(request.logRequestHeaders(), request.headers.toMultimap(), type),
-                helper.getBodyString(request.logRequestBody(), bodySupplier, type),
+                helper.getHeadersString(request.logRequestMaskHeaders(),request.logRequestHeaders(), request.headers.toMultimap(), type),
+                helper.getBodyString(request.logRequestMaskBodyKeys(),request.logRequestBody(), bodySupplier, type),
                 helper.getFooterLine(type),
             ).filter { !it.isNullOrBlank() }
                 .joinToString("\n")
@@ -196,11 +193,11 @@ open class OKLoggingInterceptor(
         val message =
             listOf(
                 helper.getHeaderLine(type),
-                helper.getIdString(rqId, type),
-                helper.getUriString(request.logResponseUri(), "${response.code} ${request.method} ${request.url}", type),
+                helper.getIdString(request.logResponseId(),rqId, type),
+                helper.getUriString(request.logResponseMaskQueryParameters(),request.logResponseUri(), "${response.code} ${request.method} ${request.url}", type),
                 helper.getTookString(request.logResponseTookTime(), time, type),
-                helper.getHeadersString(request.logResponseHeaders(), response.headers.toMultimap(), type),
-                helper.getBodyString(request.logResponseBody(), contentSupplier, type),
+                helper.getHeadersString(request.logResponseMaskHeaders(),request.logResponseHeaders(), response.headers.toMultimap(), type),
+                helper.getBodyString(request.logResponseMaskBodyKeys(),request.logResponseBody(), contentSupplier, type),
                 helper.getFooterLine(type),
             ).filter { !it.isNullOrBlank() }
                 .joinToString("\n")

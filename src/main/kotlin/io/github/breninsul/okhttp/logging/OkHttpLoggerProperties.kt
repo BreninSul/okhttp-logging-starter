@@ -24,9 +24,10 @@
 
 package io.github.breninsul.okhttp.logging
 
-import io.github.breninsul.logging.HttpLogSettings
-import io.github.breninsul.logging.HttpLoggingProperties
-import io.github.breninsul.logging.JavaLoggingLevel
+
+import io.github.breninsul.logging2.HttpLogSettings
+import io.github.breninsul.logging2.HttpLoggingProperties
+import io.github.breninsul.logging2.JavaLoggingLevel
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 /**

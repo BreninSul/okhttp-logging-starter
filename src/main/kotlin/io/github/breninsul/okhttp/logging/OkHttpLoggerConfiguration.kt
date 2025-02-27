@@ -24,10 +24,7 @@
 
 package io.github.breninsul.okhttp.logging
 
-import io.github.breninsul.logging.HttpMaskSettings
-import io.github.breninsul.logging.HttpRegexFormUrlencodedBodyMasking
-import io.github.breninsul.logging.HttpRegexJsonBodyMasking
-import io.github.breninsul.logging.HttpRegexUriMasking
+
 import org.springframework.boot.autoconfigure.AutoConfiguration
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -59,27 +56,8 @@ open class OkHttpLoggerConfiguration {
      */
     @Bean
     fun registerOKLoggingInterceptor(properties: OkHttpLoggerProperties): OKLoggingInterceptor  {
-        val requestMaskers =
-            listOf(
-                okHttpRequestRegexJsonBodyMasking(properties.request.mask),
-                okHttpRequestFormUrlencodedBodyMasking(properties.request.mask),
-            )
-        val responseMaskers =
-            listOf(
-                okHttpResponseRegexJsonBodyMasking(properties.request.mask),
-                okHttpResponseFormUrlencodedBodyMasking(properties.request.mask),
-            )
-        val uriMaskers = listOf(okHttpUriMaskingDelegate(properties.request.mask))
-        return OKLoggingInterceptor(properties, uriMaskers, requestMaskers, responseMaskers)
+
+        return OKLoggingInterceptor(properties)
     }
 
-    fun okHttpRequestRegexJsonBodyMasking(properties: HttpMaskSettings): OkHttpRequestBodyMasking = OkHttpRequestBodyMaskingDelegate(HttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
-
-    fun okHttpResponseRegexJsonBodyMasking(properties: HttpMaskSettings): OkHttpResponseBodyMasking = OkHttpResponseBodyMaskingDelegate(HttpRegexJsonBodyMasking(properties.maskJsonBodyKeys))
-
-    fun okHttpRequestFormUrlencodedBodyMasking(properties: HttpMaskSettings): OkHttpRequestBodyMasking = OkHttpRequestBodyMaskingDelegate(HttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
-
-    fun okHttpResponseFormUrlencodedBodyMasking(properties: HttpMaskSettings): OkHttpResponseBodyMasking = OkHttpResponseBodyMaskingDelegate(HttpRegexFormUrlencodedBodyMasking(properties.maskJsonBodyKeys))
-
-    fun okHttpUriMaskingDelegate(properties: HttpMaskSettings): OkHttpUriMasking = OkHttpUriMaskingDelegate(HttpRegexUriMasking(properties.maskQueryParameters))
 }

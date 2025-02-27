@@ -44,7 +44,7 @@ add the following dependency:
 ````kotlin
 dependencies {
 //Other dependencies
-    implementation("io.github.breninsul:okhttp-logging-interceptor:${version}")
+    implementation("io.github.breninsul:okhttp-logging-interceptor:2.0.0")
 //Other dependencies
 }
 

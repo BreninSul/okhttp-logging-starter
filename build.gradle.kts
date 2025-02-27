@@ -24,23 +24,23 @@
 
 plugins {
     val kotlinVersion = "2.0.0"
-    val springBootVersion = "3.3.3"
+    val springBootVersion = "3.4.3"
     id("java-library")
-    id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.2.3"
+    id("net.thebugmc.gradle.sonatype-central-portal-publisher") version "1.2.4"
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.1.5"
     id("org.jetbrains.kotlin.jvm") version kotlinVersion
     id("org.jetbrains.kotlin.plugin.spring") version kotlinVersion
     id("org.jetbrains.kotlin.kapt") version kotlinVersion
-    id("org.jetbrains.dokka") version "1.9.20"
+    id("org.jetbrains.dokka") version "2.0.0"
 }
 
-val springBootVersion = "3.3.1"
+val springBootVersion = "3.4.3"
 val kotlinVersion = "2.0.0"
 val javaVersion = JavaVersion.VERSION_17
 
 group = "io.github.breninsul"
-version = "1.2.0"
+version = "2.0.0"
 
 java {
     sourceCompatibility = javaVersion
@@ -61,8 +61,8 @@ tasks.compileKotlin {
 
 dependencies {
     compileOnly("org.springframework.boot:spring-boot-starter:$springBootVersion")
-    api("io.github.breninsul:http-logging-commons:1.2.0")
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    api("io.github.breninsul:http-logging-commons-2:2.1.1")
+    api("com.squareup.okhttp3:okhttp:4.12.0")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 
